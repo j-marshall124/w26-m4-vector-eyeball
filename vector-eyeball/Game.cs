@@ -58,12 +58,12 @@ namespace MohawkGame2D
 
             // Split vector into it's 2 components: direction and magnitude
             Vector2 direction = Vector2.Normalize(vectorFromEyeToMouse);
-            float magnitude = vectorFromEyeToMouse.Length();
+            float distance = vectorFromEyeToMouse.Length();
 
             //Calculate where to position iris and pupil
             Vector2 irisPupilPosition;
             float maxMoveDistance = corneaR - irisR;
-            bool isInsideEye = magnitude < maxMoveDistance;
+            bool isInsideEye = distance < maxMoveDistance;
             if (isInsideEye == true)
             {
                 irisPupilPosition = mousePosition;
