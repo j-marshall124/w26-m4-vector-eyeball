@@ -11,7 +11,8 @@ namespace MohawkGame2D
     public class Game
     {
         // Place your variables here:
-
+        Vector2[] positions = [new (200, 200), new (100, 100), new (300, 300)];
+        float[] radii = [50, 10, 35];
 
         /// <summary>
         ///     Setup runs once before the game loop begins.
@@ -28,7 +29,13 @@ namespace MohawkGame2D
         public void Update()
         {
             Window.ClearBackground(Color.OffWhite);
-            DrawEyeball(Window.Size / 2, 50);
+
+            for (int i = 0; i < positions.Length; i++)
+            {
+                Vector2 position = positions[i];
+                float radius = radii[i];
+                DrawEyeball(position, radius);
+            }
         }
 
         void DrawEyeball(Vector2 eyePosition, float radius)
