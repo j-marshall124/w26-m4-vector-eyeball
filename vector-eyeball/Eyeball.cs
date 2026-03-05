@@ -9,7 +9,9 @@ namespace MohawkGame2D
     {
         public Vector2 eyePosition;
         public float radius;
+        bool isEyeClosed = false;
         Color color;
+        Color eyelid = new Color(186, 147, 74);
 
         // Constructor
         public Eyeball() 
@@ -27,48 +29,99 @@ namespace MohawkGame2D
             this.radius = radius;
         }
 
+        public Eyeball(Vector2 position, float radius)
+        {
+            this.eyePosition = position;
+            this.radius = radius;
+        }
+
+        public void Update()
+        {
+            WasEyeClicked();
+            DrawEyeball();
+        }
+
+        public bool WasEyeClicked()
+        {
+            if (isEyeClosed == false) // only run code if eye is open
+            {
+                // check if we are pressing mouse button
+                if (Input.IsMouseButtonPressed(MouseInput.Left))
+                {
+                    // is distance to mouse cursor less than or equal to radius
+                    float distance = Vector2.Distance(eyePosition, Input.GetMousePosition());
+                    if (distance <= radius)
+                    {
+                        // We are clicking on the eye
+                        isEyeClosed = true;
+                        // Tell the caller of this function we did click the eye
+                        return true;
+                    }
+                }
+            }
+
+            // Code did not return true, so we have to return something, false in this case
+            return false;
+        }
+
         public void DrawEyeball()
         {
-            // Calculate ratios for each eye
-            float corneaR = radius;
-            float irisR = radius * 0.7f; // 0.7 = 70%
-            float pupilR = radius * 0.3f; // 0.3 == 30%
-
-            // Cornea
-            Draw.LineColor = Color.Black;
-            Draw.LineSize = 1;
-            Draw.FillColor = Color.White;
-            Draw.Circle(eyePosition, corneaR);
-
-            // Set up our look vector
-            // To go from point A to point B, we do B - A
-            Vector2 mousePosition = Input.GetMousePosition();
-            Vector2 vectorFromEyeToMouse = mousePosition - eyePosition;
-
-            // Split vector into it's 2 components: direction and magnitude
-            Vector2 direction = Vector2.Normalize(vectorFromEyeToMouse);
-            float distance = vectorFromEyeToMouse.Length();
-
-            //Calculate where to position iris and pupil
-            Vector2 irisPupilPosition;
-            float maxMoveDistance = corneaR - irisR;
-            bool isInsideEye = distance < maxMoveDistance;
-            if (isInsideEye == true)
+            if (isEyeClosed == false)
             {
-                irisPupilPosition = mousePosition;
+                // Calculate ratios for each eye
+                float corneaR = radius;
+                float irisR = radius * 0.7f; // 0.7 = 70%
+                float pupilR = radius * 0.3f; // 0.3 == 30%
+
+                // Cornea
+                Draw.LineColor = Color.Black;
+                Draw.LineSize = 1;
+                Draw.FillColor = Color.White;
+                Draw.Circle(eyePosition, corneaR);
+
+                // Set up our look vector
+                // To go from point A to point B, we do B - A
+                Vector2 mousePosition = Input.GetMousePosition();
+                Vector2 vectorFromEyeToMouse = mousePosition - eyePosition;
+
+                // Split vector into it's 2 components: direction and magnitude
+                Vector2 direction = Vector2.Normalize(vectorFromEyeToMouse);
+                float distance = vectorFromEyeToMouse.Length();
+
+                //Calculate where to position iris and pupil
+                Vector2 irisPupilPosition;
+                float maxMoveDistance = corneaR - irisR;
+                bool isInsideEye = distance < maxMoveDistance;
+                if (isInsideEye == true)
+                {
+                    irisPupilPosition = mousePosition;
+                }
+                else // is outside eye
+                {
+                    irisPupilPosition = eyePosition + direction * maxMoveDistance;
+                }
+
+                // Iris
+                Draw.FillColor = color;
+                Draw.Circle(irisPupilPosition, irisR);
+
+                // Pupil
+                Draw.FillColor = Color.Black;
+                Draw.Circle(irisPupilPosition, pupilR);
             }
-            else // is outside eye
+            else // eye is closed
             {
-                irisPupilPosition = eyePosition + direction * maxMoveDistance;
+                // Cornea
+                Draw.LineColor = Color.Black;
+                Draw.LineSize = 1;
+                Draw.FillColor = eyelid;
+                Draw.Circle(eyePosition, radius);
+
+                // Draw line of closed eye
+                Vector2 left = new Vector2(eyePosition.X - radius, eyePosition.Y);
+                Vector2 right = new Vector2(eyePosition.X + radius, eyePosition.Y);
+                Draw.Line(left, right);
             }
-
-            // Iris
-            Draw.FillColor = color;
-            Draw.Circle(irisPupilPosition, irisR);
-
-            // Pupil
-            Draw.FillColor = Color.Black;
-            Draw.Circle(irisPupilPosition, pupilR);
         }
     }
 }
